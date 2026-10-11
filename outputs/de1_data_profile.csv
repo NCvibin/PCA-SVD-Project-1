@@ -1,0 +1,9 @@
+Column,Type as read,Stored as,Example,"Missing in 2009-2010 (525,461 rows)","Missing in 2010-2011 (541,910 rows)","Missing total (1,067,371 rows)",Missing %,Distinct values
+Invoice,mixed (numbers + text),text,489434,0,0,0,0.0%,53628
+StockCode,mixed (numbers + text),text,85048,0,0,0,0.0%,5305
+Description,mixed (numbers + text),text,15CM CHRISTMAS GLASS BALL 20 L,2928,1454,4382,0.4%,5698
+Quantity,integer,integer,12,0,0,0,0.0%,1057
+InvoiceDate,date-time,date-time,2009-12-01 07:45,0,0,0,0.0%,47635
+Price,decimal,decimal,6.95,0,0,0,0.0%,2807
+Customer ID,decimal,integer,13085,107927,135080,243007,22.8%,5942
+Country,text,text,United Kingdom,0,0,0,0.0%,43
