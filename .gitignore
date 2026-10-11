@@ -1,0 +1,13 @@
+# data is never committed (R5) - each member downloads it locally
+data/
+*.xlsx
+*.parquet
+*.npz
+
+# python / notebooks
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.venv/
+venv/
+.DS_Store
