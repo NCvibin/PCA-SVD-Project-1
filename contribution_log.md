@@ -18,7 +18,7 @@
 | 2026-10-13 | J2 Memo to Sarah | Both | `f881de7` · `memo.pdf` | Done |
 | 2026-10-13 | J3 Slides (5-minute presentation) | Both | `Customers_Like_You_slides.pptx` | Done |
 
-GitHub accounts `trungvpham` and `trungpham25` both belong to Trung Pham.
+
 
 **Signed:**
 
