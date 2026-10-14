@@ -67,6 +67,8 @@ def recommend_for_customers(A, P_vec: np.ndarray, rows: Sequence[int], n: int = 
     Summing or averaging gives the same ranking for one customer.
     Products the customer already bought are excluded.
     use_values=True weights bought products by their matrix value instead of 1.
+    Pass the raw (un-normalised) product factors as P_vec to score by dot product instead of
+    cosine: the vector length, which tracks how widely a product sells, is then kept.
     """
     A = sp.csr_matrix(A)
     rows = np.asarray(rows)

@@ -65,16 +65,18 @@ def evaluate_recommender(A_train, P_vec: np.ndarray, holdout: dict, n: int = 10,
             "lift": m / b if b > 0 else float("nan")}
 
 
-def time_nightly_job(A_train, P_vec: np.ndarray, n: int = 10) -> dict:
+def time_nightly_job(A_train, P_vec: np.ndarray, n: int = 10,
+                     P_score: np.ndarray = None) -> dict:
     """Seconds to (1) build the 'also bought' list for every product (the product-page
-    box) and (2) score every customer. Excludes the model fit; add fit_time for the total."""
+    box, cosine on P_vec) and (2) score every customer (with P_score; defaults to P_vec).
+    Excludes the model fit; add fit_time for the total."""
     t0 = time.perf_counter()
     all_similar_products(P_vec, n)
     t_products = time.perf_counter() - t0
 
     rows = np.arange(sp.csr_matrix(A_train).shape[0])
     t0 = time.perf_counter()
-    recommend_for_customers(A_train, P_vec, rows, n)
+    recommend_for_customers(A_train, P_vec if P_score is None else P_score, rows, n)
     t_customers = time.perf_counter() - t0
     return {"all_products_similar_s": round(t_products, 3),
             "all_customers_scored_s": round(t_customers, 3)}

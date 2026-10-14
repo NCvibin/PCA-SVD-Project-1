@@ -63,6 +63,39 @@ def load_all(proc: Path = PROC) -> Data:
                 n_test_customers=int(test["Customer ID"].nunique()))
 
 
+def load_validation(proc: Path = PROC, months: int = 2, min_customers: int = 5) -> Data:
+    """Validation split carved out of the TRAINING data only, for choosing k and the scoring rule (R2).
+
+    Same rules as the Data Engineer's pipeline: the last `months` of train.parquet are held out
+    (DE3: products a known customer bought then but never before), and the matrix is rebuilt from
+    the earlier months (DE4: log(1 + total quantity), products bought by >= min_customers customers).
+    The test file is never read here.
+    """
+    tr = pd.read_parquet(Path(proc) / "train.parquet",
+                         columns=["Customer ID", "StockCode", "Quantity", "InvoiceDate", "Country"])
+    cutoff = tr["InvoiceDate"].max().normalize() - pd.DateOffset(months=months)
+    before, after = tr[tr["InvoiceDate"] < cutoff], tr[tr["InvoiceDate"] >= cutoff]
+
+    buyers = before.groupby("StockCode")["Customer ID"].nunique()
+    kept = before[before["StockCode"].isin(buyers[buyers >= min_customers].index)]
+    pairs = kept.groupby(["Customer ID", "StockCode"], as_index=False)["Quantity"].sum()
+    cust = np.sort(pairs["Customer ID"].unique())
+    prod = np.sort(pairs["StockCode"].unique())
+    A = sp.csr_matrix((np.log1p(pairs["Quantity"].to_numpy(dtype=float)),
+                       (pd.Index(cust).get_indexer(pairs["Customer ID"]),
+                        pd.Index(prod).get_indexer(pairs["StockCode"]))),
+                      shape=(len(cust), len(prod)))
+
+    held = after[["Customer ID", "StockCode"]].drop_duplicates()
+    seen = held.set_index(["Customer ID", "StockCode"]).index.isin(
+        before.set_index(["Customer ID", "StockCode"]).index)
+    held = held[held["Customer ID"].isin(before["Customer ID"].unique()) & ~seen]
+    holdout, stats = build_holdout(held, dict(zip(cust, range(len(cust)))),
+                                   dict(zip(prod, range(len(prod)))), A)
+    return Data(A=A, names=[], codes=prod, country=np.array([]), holdout=holdout,
+                holdout_stats=stats, n_test_customers=int(held["Customer ID"].nunique()))
+
+
 def hit_rate_all_customers(hit_rate_scorable: float, data: Data) -> float:
     """Headline hit rate. Test customers the model cannot score (not in the matrix, or with no
     reachable held-out product) count as misses, as the Data Engineer's hand-off note says."""
